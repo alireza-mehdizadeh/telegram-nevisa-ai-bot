@@ -55,19 +55,28 @@ bot.on("text", async (context) => {
   const userId = context.from.id
   const userText = context.message.text
 
-  await context.reply("متن رو گرفتم و دارم ویرایش میکنم برات، کمی صبر کن!")
+  const loadingMessage = await context.reply("بزار بررسی کنم تا بهت جواب بدم!")
 
   const history = userHistories.get(userId) ?? []
   const newHistory = [...history, userText]
-
   const trimmedHistory = newHistory.slice(-10)
   userHistories.set(userId, trimmedHistory)
 
   const aiResponse = await askAI(trimmedHistory)
 
-  await context.reply(
+  const editedText =
     aiResponse.content ??
-      `متاسفم، خطایی رخ داده و نتونستم متن رو برات ویرایش کنم! لطفا دوباره امتحان کن.`
+    `متاسفم، خطایی رخ داده و نتونستم متن رو برات ویرایش کنم! لطفا دوباره امتحان کن.`
+
+  await context.telegram.editMessageText(
+    context.chat.id,
+    loadingMessage.message_id,
+    undefined,
+    editedText,
+    {
+      parse_mode: "Markdown",
+    }
   )
 })
+
 bot.launch()
