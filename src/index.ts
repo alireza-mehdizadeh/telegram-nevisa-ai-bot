@@ -7,7 +7,7 @@ import askAI from "./utils/openai"
 const BOT_TOKEN = process.env.BOT_TOKEN!
 const bot = new Telegraf(BOT_TOKEN)
 
-const userHistories = new Map<number, string[]>()
+const userHistories = new Map<number, { role: "user" | "assistant"; content: string }[]>()
 
 bot.start((context) => {
   const userId = context.from.id
@@ -58,15 +58,18 @@ bot.on("text", async (context) => {
   const loadingMessage = await context.reply("بزار بررسی کنم تا بهت جواب بدم!")
 
   const history = userHistories.get(userId) ?? []
-  const newHistory = [...history, userText]
-  const trimmedHistory = newHistory.slice(-10)
-  userHistories.set(userId, trimmedHistory)
 
-  const aiResponse = await askAI(trimmedHistory)
+  history.push({ role: "user", content: userText })
+
+  const aiResponse = await askAI(history)
 
   const editedText =
     aiResponse.content ??
     `متاسفم، خطایی رخ داده و نتونستم متن رو برات ویرایش کنم! لطفا دوباره امتحان کن.`
+
+  history.push({ role: "assistant", content: editedText })
+
+  userHistories.set(userId, history)
 
   await context.telegram.editMessageText(
     context.chat.id,
