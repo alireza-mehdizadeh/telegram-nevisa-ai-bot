@@ -8,3 +8,8 @@ Navisa is an intelligent Node.js bot developed by Alireza Mehdizadeh designed fo
 - Continuous learning and improvement
 - Fast and accurate responses
 - Simple and user-friendly interface
+
+## ENV
+
+BOT_TOKEN="YOUR_TOKEN"
+OPENAI_API_KEY="YOUR_TOKEN"
